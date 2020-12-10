@@ -1,0 +1,36 @@
+{
+  "name": "xled",
+  "version": "1.0.0",
+  "description": "An API to control Twinkly smart lights",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/i-am-gizm0/xled-js.git"
+  },
+  "author": "https://github.com/i-am-gizm0",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/i-am-gizm0/xled-js/issues"
+  },
+  "homepage": "https://github.com/i-am-gizm0/xled-js#readme",
+  "devDependencies": {
+    "@types/atob": "^2.1.2",
+    "@types/btoa": "^1.2.3",
+    "@types/node": "^14.14.10",
+    "@types/node-fetch": "^2.5.7",
+    "@types/randomstring": "^1.1.6",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.1.2"
+  },
+  "dependencies": {
+    "atob": "^2.1.2",
+    "btoa": "^1.2.1",
+    "jimp": "^0.16.1",
+    "node-fetch": "^2.6.1",
+    "randomstring": "^1.1.5"
+  }
+}
