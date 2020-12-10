@@ -52,7 +52,7 @@ export default class Driver extends EventEmitter {
         }, keepaliveInterval);
     }
 
-    // TODO [$5fd1a3544311f2000760865e]: check if we need to log in and login if it fails
+    // TODO [#7]: check if we need to log in and login if it fails
     public async login() {
         if (this.authToken && new Date().getTime() - this.tokenIssueTime.getTime() < 15000) {
             return;
@@ -65,12 +65,12 @@ export default class Driver extends EventEmitter {
             body: JSON.stringify(body)
         });
         if (!response.ok) {} // TODO: Handle bad response
-        // TODO [$5fd1a3544311f2000760865f]: TS should throw a TypeError here if the response doesn't contain everything so it should be handled
+        // TODO [#8]: TS should throw a TypeError here if the response doesn't contain everything so it should be handled
         const tokenData:TokenResponse = await response.json();
         this.authToken = tokenData.authentication_token;
         this.tokenIssueTime = new Date();
         this.globalHeaders["X-Auth-Token"] = this.authToken;
-        // TODO [$5fd1a3544311f20007608660]: Verify response
+        // TODO [#9]: Verify response
         this.challengeResponse = tokenData["challenge-response"];
 
         await this.verify();
@@ -90,7 +90,7 @@ export default class Driver extends EventEmitter {
 
     public async gestalt():Promise<DeviceDetails> {
         // await this.login(); 
-        // TODO [$5fd1a3544311f20007608661]: gestalt times out sometimes when login is called again... this might be rudimentary rate limiting?
+        // TODO [#10]: gestalt times out sometimes when login is called again... this might be rudimentary rate limiting?
         //       if so, token checks should be implemented (login top-level TODO)
 
         const url = new URL(`${this.baseURL}/gestalt`);
@@ -223,7 +223,7 @@ export default class Driver extends EventEmitter {
         return await this.getMode();
     }
 
-    // TODO [$5fd1a3544311f20007608662]: Add mode checks and persistence
+    // TODO [#11]: Add mode checks and persistence
     public async uploadMovie(image:string, fps = 25) {
         await this.login();
         const device = await this.gestalt();

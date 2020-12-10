@@ -37,7 +37,7 @@ export default class LightsWritable extends Writable {
             chunk = new ImageProcessor(chunk.toString(), this.device.number_of_led, this.device.movie_capacity).getFrameBuffer(0);    // TODO: This is gonna be really slow
         }
 
-        // TODO [$5fd1a3544311f2000760865d]: Clean this up... there has to be a better way to do this
+        // TODO [#6]: Clean this up... there has to be a better way to do this
         // Generate the header
         let tokenArray = str2ab(this.token);
         let udpHeader = Buffer.alloc(tokenArray.length + 2);
