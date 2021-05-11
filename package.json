@@ -32,6 +32,6 @@
     "btoa": "^1.2.1",
     "jimp": "^0.16.1",
     "node-fetch": "^2.6.1",
-    "randomstring": "^1.1.5"
+    "randomstring": "^1.2.1"
   }
 }
