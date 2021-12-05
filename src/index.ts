@@ -15,26 +15,26 @@ const DEFAULT_KEEPALIVE = 5000;
 
 export default class Driver extends EventEmitter {
 
-    private IP:string;
+    private IP: string;
 
-    private baseURL:string;
-    private loginURL:URL;
-    private verifyURL:URL;
+    private baseURL: string;
+    private loginURL: string;
+    private verifyURL: string;
 
-    private authToken:string;
-    private tokenIssueTime:Date;
-    private challengeResponse:string;
+    private authToken: string;
+    private tokenIssueTime: Date;
+    private challengeResponse: string;
 
-    private globalHeaders:{'X-Auth-Token':string};
+    private globalHeaders:{'X-Auth-Token': string};
 
     private keepaliveTimer: NodeJS.Timeout;
     
-    public constructor(IP:string, keepaliveInterval = DEFAULT_KEEPALIVE) {
+    public constructor(IP: string, keepaliveInterval = DEFAULT_KEEPALIVE) {
         super();
         this.IP = IP;
         this.baseURL = `http://${IP}/xled/v1`;
-        this.loginURL = new URL(`${this.baseURL}/login`);
-        this.verifyURL = new URL(`${this.baseURL}/verify`);
+        this.loginURL = `${this.baseURL}/login`;
+        this.verifyURL = `${this.baseURL}/verify`;
         // Set up and check the connection
         this.gestalt().then(value => {
             this.emit('connected', value);
@@ -66,12 +66,12 @@ export default class Driver extends EventEmitter {
         });
         if (!response.ok) {} // TODO: Handle bad response
         // TODO [#8]: TS should throw a TypeError here if the response doesn't contain everything so it should be handled
-        const tokenData:TokenResponse = await response.json();
+        const tokenData = <TokenResponse>await response.json();
         this.authToken = tokenData.authentication_token;
         this.tokenIssueTime = new Date();
-        this.globalHeaders["X-Auth-Token"] = this.authToken;
+        this.globalHeaders['X-Auth-Token'] = this.authToken;
         // TODO [#9]: Verify response
-        this.challengeResponse = tokenData["challenge-response"];
+        this.challengeResponse = tokenData['challenge-response'];
 
         await this.verify();
         return this.authToken;
@@ -84,40 +84,40 @@ export default class Driver extends EventEmitter {
             body: this.challengeResponse
         });
         if (!response.ok) {}  // TODO: Handle bad response
-        const verifyData = await response.json();   // TODO: Handle bad response
+        const verifyData = <{ code: number }>await response.json();   // TODO: Handle bad response
         if (!('code' in verifyData) || verifyData.code != 1000) {}  // TODO: Handle bad response
     }
 
-    public async gestalt():Promise<DeviceDetails> {
+    public async gestalt(): Promise<DeviceDetails> {
         // await this.login(); 
         // TODO [#10]: gestalt times out sometimes when login is called again... this might be rudimentary rate limiting?
         //       if so, token checks should be implemented (login top-level TODO)
 
-        const url = new URL(`${this.baseURL}/gestalt`);
+        const url = `${this.baseURL}/gestalt`;
         const response = await fetch(url, {
             headers: this.globalHeaders
         });
 
         if (!response.ok) {}    // TODO: Handle bad response
-        const data = await response.json();
-        const {code, ...details} = data;
+        const data = <{ code: number } & DeviceDetails>await response.json();
+        const { code, ...details } = data;
         return details;   // TODO: parse response into object?
     }
 
     public async getName() {
         await this.login();
 
-        const url = new URL(`${this.baseURL}/device_name`);
+        const url = `${this.baseURL}/device_name`;
         const response = await fetch(url, {
             headers: this.globalHeaders
         });
 
         if (!response.ok){}   // TODO: Handle bad response
-        const data:{code:number, name:string} = await response.json();
+        const data = <{ code:number, name:string }>await response.json();
         return data.name;
     }
 
-    public async setName(name:string) {
+    public async setName(name: string) {
         if (name.length > MAX_NAME_LENGTH) {
             name = name.substr(0, MAX_NAME_LENGTH);
         }
@@ -125,10 +125,8 @@ export default class Driver extends EventEmitter {
 
         await this.login();
 
-        const url = new URL(`${this.baseURL}/device_name`);
-        const body = {
-            name
-        }
+        const url = `${this.baseURL}/device_name`;
+        const body = { name };
         const response = await(fetch(url, {
             method: 'POST',
             headers: this.globalHeaders,
@@ -141,15 +139,15 @@ export default class Driver extends EventEmitter {
     public async getTimer() {
         await this.login();
 
-        const url = new URL(`${this.baseURL}/timer`);
+        const url = `${this.baseURL}/timer`;
         const response = await fetch(url, {
             headers: this.globalHeaders
         });
 
         if (!response.ok){}   // TODO: Handle bad response
-        const data:{code:number, time_now:number, time_on:number, time_off:number} = await response.json();
-        const {code, ...rawTimer} = data;
-        const timer:Timer = {
+        const data = <{ code: number, time_now: number, time_on: number, time_off:number }>await response.json();
+        const { code, ...rawTimer } = data;
+        const timer: Timer = {
             now: rawTimer.time_now,
             on: rawTimer.time_on,
             off: rawTimer.time_off
@@ -157,7 +155,7 @@ export default class Driver extends EventEmitter {
         return timer;
     }
 
-    public async setTimer(timer:Timer, strictTime = false) {
+    public async setTimer(timer: Timer, strictTime = false) {
         let newTimer = {
             time_now: this.validTimerValue(timer.now),
             time_on: this.validTimerValue(timer.on),
@@ -170,7 +168,7 @@ export default class Driver extends EventEmitter {
 
         await this.login();
 
-        const url = new URL(`${this.baseURL}/timer`);
+        const url = `${this.baseURL}/timer`;
         const response = await(fetch(url, {
             method: 'POST',
             headers: this.globalHeaders,
@@ -180,19 +178,19 @@ export default class Driver extends EventEmitter {
         return await this.getTimer();
     }
 
-    private validTimerValue(x:number) {
+    private validTimerValue(x: number) {
         return (x >= 0 && x <= 86400) ? x : -1;
     }
 
     public async getMode() {
         await this.login();
-        const url = new URL(`${this.baseURL}/led/mode`);
+        const url = `${this.baseURL}/led/mode`;
         const response = await fetch(url, {
             headers: this.globalHeaders
         });
 
-        if (!response.ok){}   // TODO: Handle bad response
-        const data = await response.json();
+        if (!response.ok) {}   // TODO: Handle bad response
+        const data = <{ mode: 'off' | 'demo' | 'movie' | 'rt' }>await response.json();
         this.emit('mode', Mode[data.mode]);
         this.emit(Mode[data.mode]);
         switch (data.mode) {
@@ -207,10 +205,10 @@ export default class Driver extends EventEmitter {
         }
     }
 
-    public async setMode(mode:Mode) {
+    public async setMode(mode: Mode) {
         await this.login();
 
-        const url = new URL(`${this.baseURL}/led/mode`);
+        const url = `${this.baseURL}/led/mode`;
         const body = {
             mode: Mode[mode].toLowerCase()
         };
@@ -224,14 +222,14 @@ export default class Driver extends EventEmitter {
     }
 
     // TODO [#11]: Add mode checks and persistence
-    public async uploadMovie(image:string, fps = 25) {
+    public async uploadMovie(image: string, fps = 25) {
         await this.login();
         const device = await this.gestalt();
         const processor = new ImageProcessor(image, device.number_of_led, device.movie_capacity);
 
         await this.reset();
 
-        const movieURL = new URL(`${this.baseURL}/led/movie/full`);
+        const movieURL = `${this.baseURL}/led/movie/full`;
         const movieHeaders = {
             ...this.globalHeaders,
             'Content-Type': 'application/octet-stream'
@@ -242,12 +240,12 @@ export default class Driver extends EventEmitter {
             body: processor.getBuffer()
         });
         if (!movieResponse.ok) {}
-        const movieResponseData = await movieResponse.json();
+        const movieResponseData = <{ code: number; 'frames_number': number }>await movieResponse.json();
         if (!('code' in movieResponseData) || !('frames_number' in movieResponseData) || movieResponseData['frames_number'] != processor.getSize()) {
             throw console.log(movieResponseData);
         }
 
-        const configURL = new URL(`${this.baseURL}/led/movie/config`);
+        const configURL = `${this.baseURL}/led/movie/config`;
         const body = {
             'frame_delay': 1000 / fps,
             'leds_number': device.number_of_led,
@@ -265,7 +263,7 @@ export default class Driver extends EventEmitter {
         await this.setMode(Mode.MOVIE);
     }
 
-    public async startRealTimeStream(useFilePath=false) {
+    public async startRealTimeStream(useFilePath = false) {
         await this.setMode(Mode.RT);
         
         return new LightsWritable({
@@ -279,14 +277,14 @@ export default class Driver extends EventEmitter {
 
     public async getBrightness() {
         await this.login();
-        const url = new URL(`${this.baseURL}/led/out/brightness`);
+        const url = `${this.baseURL}/led/out/brightness`;
         const response = await fetch(url, {
             headers: this.globalHeaders
         });
 
-        if (!response.ok){}   // TODO: Handle bad response
-        const responseData:{code:number, mode:'enabled'|'disabled', value:number} = await response.json();
-        const {code, ...data} = responseData;
+        if (!response.ok) {}   // TODO: Handle bad response
+        const responseData = <{ code: number, mode: 'enabled' | 'disabled', value: number }>await response.json();
+        const { code, ...data } = responseData;
         return data;
     }
     
@@ -296,7 +294,7 @@ export default class Driver extends EventEmitter {
 
         await this.login();
 
-        const url = new URL(`${this.baseURL}/led/out/brightness`);
+        const url = `${this.baseURL}/led/out/brightness`;
         const body = {
             mode: enabled,
             type: 'A',
@@ -314,7 +312,7 @@ export default class Driver extends EventEmitter {
     public async reset() {
         await this.login();
 
-        const url = new URL(`${this.baseURL}/led/reset`);
+        const url = `${this.baseURL}/led/reset`;
         await fetch(url, {
             method: 'GET',
             headers: this.globalHeaders
@@ -332,5 +330,3 @@ export enum Mode {
     MOVIE,
     RT
 }
-
-// module.exports = { Driver, Mode };
