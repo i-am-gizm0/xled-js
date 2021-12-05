@@ -25,7 +25,7 @@ export default class Driver extends EventEmitter {
     private tokenIssueTime: Date;
     private challengeResponse: string;
 
-    private globalHeaders:{'X-Auth-Token': string};
+    private globalHeaders: { 'X-Auth-Token': string };
 
     private keepaliveTimer: NodeJS.Timeout;
     

@@ -1,6 +1,13 @@
 // https://gist.github.com/jamischarles/1046671
 export function sanitizeJSON(unsanitized:string) {	
-    return unsanitized.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/\r/g, "\\r").replace(/\t/g, "\\t").replace(/\f/g, "\\f").replace(/"/g,"\\\"").replace(/'/g,"\\\'").replace(/\&/g, "\\&"); 
+    return unsanitized.replace(/\\/g, "\\\\")
+        .replace(/\n/g, "\\n")
+        .replace(/\r/g, "\\r")
+        .replace(/\t/g, "\\t")
+        .replace(/\f/g, "\\f")
+        .replace(/"/g, "\\\"")
+        .replace(/'/g, "\\\'")
+        .replace(/\&/g, "\\&"); 
 }
 
 // https://developers.google.com/web/updates/2012/06/How-to-convert-ArrayBuffer-to-and-from-String

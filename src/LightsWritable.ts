@@ -7,12 +7,12 @@ import { str2ab } from "./Util";
 import atob from 'atob';
 
 export default class LightsWritable extends Writable {
-    private device:DeviceDetails;
-    private ip:string;
-    private token:string;
-    private driver:Driver;
+    private device: DeviceDetails;
+    private ip: string;
+    private token: string;
+    private driver: Driver;
     
-    private useFilePath:boolean;
+    private useFilePath: boolean;
 
     private udpClient: udp.Socket;
 
@@ -29,10 +29,10 @@ export default class LightsWritable extends Writable {
 
         this.udpClient = udp.createSocket('udp4');
 
-        this.tokenInterval = setInterval(async () => {this.token = atob(await driver.login())}, 13000); // Expires in 14400, so renew around a second before that
+        this.tokenInterval = setInterval(async () => { this.token = atob(await driver.login()) }, 13000); // Expires in 14400, so renew around a second before that
     }
 
-    _write(chunk:Buffer, encoding:BufferEncoding, callback:(error?:Error)=>void) {
+    _write(chunk: Buffer, encoding: BufferEncoding, callback: (error?: Error) => void) {
         if (this.useFilePath) {  // Is probably a file path
             chunk = new ImageProcessor(chunk.toString(), this.device.number_of_led, this.device.movie_capacity).getFrameBuffer(0);    // TODO: This is gonna be really slow
         }
@@ -64,11 +64,10 @@ export default class LightsWritable extends Writable {
     //     this._destroy(undefined, callback);
     // }
 
-    async _destroy(err:Error, callback: (error?:any)=>void) {
+    async _destroy(err: Error, callback: (error?: any) => void) {
         console.log('stopping writable');
         this.udpClient.close();
-        this.driver.setMode(Mode.MOVIE)
-            .then(()=>callback(err));
+        this.driver.setMode(Mode.MOVIE).then(()=>callback(err));
         clearInterval(this.tokenInterval);
     }
 }

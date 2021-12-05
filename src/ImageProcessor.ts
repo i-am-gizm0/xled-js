@@ -1,15 +1,15 @@
 import Jimp from 'jimp';
 
 export default class ImageProcessor {
-    private width:number;
-    private height:number;
-    private inputFile:string;
-    private image:Jimp;
+    private width: number;
+    private height: number;
+    private inputFile: string;
+    private image: Jimp;
 
-    public constructor(inputFile:string, stringLength:number, maxFrames:number) {
+    public constructor(inputFile: string, stringLength: number, maxFrames: number) {
         this.inputFile = inputFile;
         this.width = stringLength;
-        Jimp.read(inputFile).then(image => {
+        Jimp.read(this.inputFile).then(image => {
             this.image = image;
             if ((this.width = image.getWidth()) != stringLength || (this.height = image.getHeight()) > maxFrames) {
                 throw 'Image is wrong dimensions';
@@ -21,7 +21,7 @@ export default class ImageProcessor {
         return this.height;
     }
 
-    public getColor(lightIndex:number, frame:number) {
+    public getColor(lightIndex: number, frame: number) {
         return Jimp.intToRGBA(this.image.getPixelColor(lightIndex, frame));
     }
 
@@ -35,7 +35,7 @@ export default class ImageProcessor {
         return Buffer.concat(imageBuffers);
     }
 
-    public getFrameBuffer(frame:number) {
+    public getFrameBuffer(frame: number) {
         const imageBuffer = Buffer.alloc(this.width * 3);
         let offset = 0;
         for (let x = 0; x < this.width; x++) {
